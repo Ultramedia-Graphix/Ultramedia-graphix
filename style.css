@@ -1,0 +1,499 @@
+/* ===================================
+   ULTRAMEDIA GRAPHIX — BRAND STYLESHEET
+   =================================== */
+
+/* --- Fonts ---
+   Place your actual font files inside the /fonts folder, then these
+   @font-face rules make them usable anywhere in your CSS below.
+   Update the filenames to match exactly what you have. */
+
+@font-face {
+  font-family: "MadeTommy";
+  src: url("fonts/MadeTommyBlack.otf") format("opentype");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "ProductSans";
+  src: url("fonts/ProductSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "ProductSans";
+  src: url("fonts/ProductSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+/* --- Brand colors, defined once, used everywhere ---
+   This is called a "CSS variable" or "custom property." Instead of
+   typing #FF9900 fifty times across your CSS, you type var(--orange)
+   once. If you ever want to tweak the brand color, you change it in
+   ONE place here, and the whole site updates. */
+
+:root {
+  --orange: #FF9900;
+  --maroon: #6E1D1D;
+  --white: #FFFFFF;
+  --gray-light: #f4f4f4;
+  --gray-text: #333333;
+}
+
+/* --- Reset & base --- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "ProductSans", Arial, sans-serif;
+  color: var(--gray-text);
+  background-color: var(--white);
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: "MadeTommy", "ProductSans", sans-serif;
+  color: var(--maroon);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* --- Header / Navbar --- */
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: var(--maroon);
+}
+
+.site-header .logo {
+  font-family: "MadeTommy", sans-serif;
+  color: var(--white);
+  font-size: 24px;
+}
+
+.site-header nav {
+  display: flex;
+  gap: 24px;
+}
+
+.site-header nav a {
+  color: var(--white);
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.site-header nav a:hover,
+.site-header nav a.active {
+  color: var(--orange);
+}
+
+@media (max-width: 600px) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+/* --- Hero section (homepage top banner) ---
+   Big oversized faint background word behind the real headline —
+   adapted from the reference template's wordmark treatment. */
+
+.hero {
+  position: relative;
+  background-color: var(--gray-light);
+  padding: 100px 40px;
+  overflow: hidden;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-bgword {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  transform: translateY(-50%);
+  font-family: "MadeTommy", sans-serif;
+  font-size: 140px;
+  color: rgba(110, 29, 29, 0.08);
+  white-space: nowrap;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+}
+
+.hero-content .eyebrow {
+  font-weight: 700;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.hero-content p {
+  font-size: 18px;
+  margin-bottom: 32px;
+  color: var(--gray-text);
+}
+
+@media (max-width: 768px) {
+  .hero-bgword {
+    font-size: 80px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-content h1 {
+    font-size: 32px;
+  }
+  .hero-bgword {
+    font-size: 56px;
+  }
+}
+
+/* --- Buttons --- */
+
+.btn {
+  display: inline-block;
+  background-color: var(--orange);
+  color: var(--white);
+  font-weight: 700;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  background-color: #e68a00;
+  transform: translateY(-2px);
+}
+
+/* --- Cards (services, portfolio items, etc.) --- */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 60px 40px;
+}
+
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background-color: var(--white);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+}
+
+.card h3 {
+  margin-bottom: 12px;
+}
+
+/* --- Color-blocked service cards ---
+   Each card is a solid color block with a label, bold title, and one
+   button — same repeating formula as the reference template, just in
+   your brand colors instead of black/yellow/red. */
+
+.block-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px 40px 60px 40px;
+}
+
+@media (max-width: 768px) {
+  .block-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .block-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.color-block {
+  border-radius: 12px;
+  padding: 32px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.color-block .label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+
+.color-block h3 {
+  color: var(--white);
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.color-block .btn-mini {
+  display: inline-block;
+  background-color: var(--white);
+  color: var(--gray-text);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  width: fit-content;
+  transition: background-color 0.2s ease;
+}
+
+.color-block .btn-mini:hover {
+  background-color: var(--orange);
+  color: var(--white);
+}
+
+.color-block.maroon   { background-color: var(--maroon); }
+.color-block.orange   { background-color: var(--orange); }
+.color-block.dark     { background-color: #1a1a1a; }
+
+/* --- Trust bar (small icon reassurance row) --- */
+
+.trust-bar {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 40px;
+  background-color: var(--gray-light);
+  text-align: center;
+}
+
+.trust-item h4 {
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: var(--gray-text);
+}
+
+.trust-item p {
+  font-size: 13px;
+  color: #777;
+}
+
+/* --- Full-width promo banner --- */
+
+.promo-banner {
+  background-color: var(--orange);
+  color: var(--white);
+  border-radius: 12px;
+  margin: 60px 40px;
+  padding: 60px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.promo-banner h2 {
+  color: var(--white);
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.promo-banner .btn {
+  background-color: var(--white);
+  color: var(--maroon);
+}
+
+.promo-banner .btn:hover {
+  background-color: var(--maroon);
+  color: var(--white);
+}
+
+/* --- Footer --- */
+
+.site-footer {
+  background-color: var(--maroon);
+  color: var(--white);
+  text-align: center;
+  padding: 24px;
+  margin-top: 40px;
+}
+
+/* --- Login page --- */
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: var(--gray-light);
+  padding: 20px;
+}
+
+.login-box {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-text);
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+.login-box .btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.error-text {
+  color: #c0392b;
+  font-size: 13px;
+  margin-top: 4px;
+  min-height: 16px;
+}
+
+.signup-link {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.signup-link a {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.helper-text {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.success-text {
+  color: #2e7d32;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+  padding: 0 12px;
+}
+
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: var(--white);
+  color: var(--gray-text);
+  font-weight: 700;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-google:hover {
+  background-color: #f5f5f5;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+}
