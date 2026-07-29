@@ -1,12 +1,9 @@
-// ===================================
-// ULTRAMEDIA GRAPHIX — SHARED SCRIPT
-// This one file is linked on every page. Each page only has the
-// HTML elements relevant to it, so querySelector calls for elements
-// that don't exist on the current page will just return null —
-// that's why we check "if (element)" before using page-specific code.
-// ===================================
-
 console.log("Ultramedia Graphix script connected.");
+
+const SUPABASE_URL = "https://scsesxsnhzbkcrifosea.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjc2VzeHNuaHpia2NyaWZvc2VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjAxMjcsImV4cCI6MjEwMDg5NjEyN30.XswQAJQRn2zWX8jQpq74CIwbk0eKkmJ_fKR3HGbdFJA";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- Login form validation (only runs if #loginForm exists on this page) ---
 
@@ -18,7 +15,7 @@ if (loginForm) {
   const emailError = document.querySelector("#emailError");
   const passwordError = document.querySelector("#passwordError");
 
-  loginForm.addEventListener("submit", function (event) {
+  loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     let isValid = true;
@@ -39,10 +36,21 @@ if (loginForm) {
       passwordError.textContent = "";
     }
 
-    if (isValid) {
-      alert("Login successful! Taking you to your dashboard. (Demo only — no real account system is connected yet.)");
-      window.location.href = "dashboard.html";
+    if (!isValid) {
+      return;
     }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailValue,
+      password: passwordValue
+    });
+
+    if (error) {
+      passwordError.textContent = error.message;
+      return;
+    }
+
+    window.location.href = "dashboard.html";
   });
 }
 
@@ -61,7 +69,7 @@ if (registerForm) {
   const passwordError = document.querySelector("#regPasswordError");
   const confirmError = document.querySelector("#regConfirmError");
 
-  registerForm.addEventListener("submit", function (event) {
+  registerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     let isValid = true;
@@ -107,28 +115,25 @@ if (registerForm) {
       return;
     }
 
-    // ============================================================
-    // REAL BACKEND GOES HERE (not possible with plain JS alone):
-    //
-    // 1. Check if emailValue already exists in your database.
-    //    If it does -> show "This email is already registered."
-    // 2. If not, send {name, email, password} to your auth service
-    //    (e.g. Supabase: supabase.auth.signUp({ email, password }))
-    //    which hashes the password server-side and stores the user.
-    // 3. On success, redirect to login.html or straight into the app.
-    //
-    // Example with Supabase (once you set up a project):
-    //
-    //   const { data, error } = await supabase.auth.signUp({
-    //     email: emailValue,
-    //     password: passwordValue
-    //   });
-    //   if (error) { emailError.textContent = error.message; return; }
-    //
-    // ============================================================
+    // Real registration via Supabase.
+    // Supabase automatically rejects this if the email is already
+    // registered — we just need to catch and display that error.
+    const { data, error } = await supabase.auth.signUp({
+      email: emailValue,
+      password: passwordValue,
+      options: {
+        data: { full_name: nameValue } // stored alongside the user
+      }
+    });
 
-    alert("Demo only: in a real version, your account would now be created securely on the server.");
+    if (error) {
+      emailError.textContent = error.message;
+      return;
+    }
+
+    alert("Account created! Check your email to confirm your address, then log in.");
     registerForm.reset();
+    window.location.href = "login.html";
   });
 }
 
@@ -137,17 +142,19 @@ if (registerForm) {
 const googleSignupBtn = document.querySelector("#googleSignupBtn");
 
 if (googleSignupBtn) {
-  googleSignupBtn.addEventListener("click", function () {
-    // ============================================================
-    // REAL GOOGLE SIGN-IN GOES HERE:
-    // Requires a registered app in Google Cloud Console + an auth
-    // service (Supabase/Firebase) configured with your Google
-    // Client ID. Example with Supabase:
-    //
-    //   await supabase.auth.signInWithOAuth({ provider: "google" });
-    //
-    // ============================================================
-    alert("Demo only: Google sign-in requires backend setup (see code comments in script.js).");
+  googleSignupBtn.addEventListener("click", async function () {
+    // Requires enabling Google as a provider in Supabase → Authentication
+    // → Providers, and setting up a Google Cloud OAuth Client ID there.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google"
+    });
+
+    if (error) {
+      alert("Google sign-in error: " + error.message);
+    }
+    // On success, Supabase redirects the browser to Google automatically,
+    // then back to your site once the user approves — no further code
+    // needed here.
   });
 }
 
@@ -160,7 +167,7 @@ if (resetForm) {
   const resetEmailError = document.querySelector("#resetEmailError");
   const resetSuccessMsg = document.querySelector("#resetSuccessMsg");
 
-  resetForm.addEventListener("submit", function (event) {
+  resetForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const emailValue = resetEmailInput.value.trim();
@@ -173,16 +180,16 @@ if (resetForm) {
 
     resetEmailError.textContent = "";
 
-    // ============================================================
-    // REAL PASSWORD RESET GOES HERE:
-    // A backend/auth service generates a secure, time-limited reset
-    // link and emails it. Example with Supabase:
-    //
-    //   const { error } = await supabase.auth.resetPasswordForEmail(emailValue);
-    //
-    // ============================================================
+    const { error } = await supabase.auth.resetPasswordForEmail(emailValue, {
+      redirectTo: window.location.origin + "/login.html"
+    });
 
-    resetSuccessMsg.textContent = "Demo only: in a real version, a reset link would be emailed to " + emailValue + ".";
+    if (error) {
+      resetEmailError.textContent = error.message;
+      return;
+    }
+
+    resetSuccessMsg.textContent = "Check your email for a link to reset your password.";
     resetForm.reset();
   });
 }
@@ -252,6 +259,22 @@ if (contactForm) {
 const projectList = document.querySelector("#projectList");
 
 if (projectList) {
+
+  // --- Protect this page: only logged-in users should see it ---
+  (async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const welcomeMsg = document.querySelector("#welcomeMsg");
+    if (welcomeMsg) {
+      const name = session.user.user_metadata.full_name || session.user.email;
+      welcomeMsg.textContent = "Welcome Back, " + name;
+    }
+  })();
 
   // ============================================================
   // MOCK DATA — stands in for what would really come from Supabase.
@@ -360,15 +383,9 @@ if (projectList) {
 const logoutBtn = document.querySelector("#logoutBtn");
 
 if (logoutBtn) {
-  logoutBtn.addEventListener("click", function (event) {
+  logoutBtn.addEventListener("click", async function (event) {
     event.preventDefault();
-
-    // ============================================================
-    // REAL LOGOUT GOES HERE:
-    //   await supabase.auth.signOut();
-    //   window.location.href = "index.html";
-    // ============================================================
-
-    alert("Demo only: in a real version this would log you out and return you to the homepage.");
+    await supabase.auth.signOut();
+    window.location.href = "index.html";
   });
 }
