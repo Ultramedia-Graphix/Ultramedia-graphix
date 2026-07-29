@@ -215,6 +215,7 @@ a {
 }
 
 .card {
+  display: block;
   background-color: var(--white);
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -230,6 +231,184 @@ a {
 
 .card h3 {
   margin-bottom: 12px;
+}
+
+/* --- Page banner (smaller hero used on inner pages: about/services/contact) --- */
+
+.page-banner {
+  position: relative;
+  background-color: var(--gray-light);
+  padding: 60px 40px;
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.page-banner .hero-bgword {
+  font-size: 90px;
+}
+
+.page-banner .hero-content {
+  max-width: 600px;
+}
+
+.page-banner .hero-content h1 {
+  font-size: 36px;
+}
+
+@media (max-width: 600px) {
+  .page-banner .hero-bgword {
+    font-size: 48px;
+  }
+  .page-banner .hero-content h1 {
+    font-size: 28px;
+  }
+}
+
+/* --- Portfolio grid (used on service detail pages) --- */
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 600px) {
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.portfolio-item {
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--gray-light);
+  aspect-ratio: 4 / 3;
+}
+
+.portfolio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.portfolio-item:hover img {
+  transform: scale(1.05);
+}
+
+/* --- Client Dashboard --- */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-card {
+  background-color: var(--white);
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.project-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.project-card h3 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.project-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.status-in-progress {
+  background-color: #fff3cd;
+  color: #8a6d00;
+}
+
+.status-review {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.project-files {
+  margin-top: 16px;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.file-row a {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.file-row a:hover {
+  text-decoration: underline;
+}
+
+/* --- Generic content section + two-column layout (About page) --- */
+
+.content-section {
+  padding: 60px 40px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.two-col h2 {
+  margin-bottom: 12px;
+}
+
+.two-col p {
+  margin-bottom: 16px;
+  color: var(--gray-text);
+}
+
+@media (max-width: 768px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* --- Color-blocked service cards ---

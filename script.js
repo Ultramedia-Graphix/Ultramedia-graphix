@@ -40,8 +40,8 @@ if (loginForm) {
     }
 
     if (isValid) {
-      alert("Login successful! (This is a demo — no real account system is connected yet.)");
-      loginForm.reset();
+      alert("Login successful! Taking you to your dashboard. (Demo only — no real account system is connected yet.)");
+      window.location.href = "dashboard.html";
     }
   });
 }
@@ -184,5 +184,191 @@ if (resetForm) {
 
     resetSuccessMsg.textContent = "Demo only: in a real version, a reset link would be emailed to " + emailValue + ".";
     resetForm.reset();
+  });
+}
+
+// --- Contact form validation (only runs if #contactForm exists) ---
+
+const contactForm = document.querySelector("#contactForm");
+
+if (contactForm) {
+  const contactNameInput = document.querySelector("#contactName");
+  const contactEmailInput = document.querySelector("#contactEmail");
+  const contactMessageInput = document.querySelector("#contactMessage");
+
+  const contactNameError = document.querySelector("#contactNameError");
+  const contactEmailError = document.querySelector("#contactEmailError");
+  const contactMessageError = document.querySelector("#contactMessageError");
+  const contactSuccessMsg = document.querySelector("#contactSuccessMsg");
+
+  contactForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    let isValid = true;
+
+    const nameValue = contactNameInput.value.trim();
+    const emailValue = contactEmailInput.value.trim();
+    const messageValue = contactMessageInput.value.trim();
+
+    if (nameValue === "") {
+      contactNameError.textContent = "Please enter your name.";
+      isValid = false;
+    } else {
+      contactNameError.textContent = "";
+    }
+
+    if (emailValue === "" || !emailValue.includes("@")) {
+      contactEmailError.textContent = "Please enter a valid email.";
+      isValid = false;
+    } else {
+      contactEmailError.textContent = "";
+    }
+
+    if (messageValue === "") {
+      contactMessageError.textContent = "Please enter a message.";
+      isValid = false;
+    } else {
+      contactMessageError.textContent = "";
+    }
+
+    if (!isValid) {
+      contactSuccessMsg.textContent = "";
+      return;
+    }
+
+    // ============================================================
+    // In a real version, this is where you'd send the message
+    // somewhere real — e.g. an email service, or storing it in
+    // your Supabase database. For now, this just confirms locally.
+    // ============================================================
+
+    contactSuccessMsg.textContent = "Thanks, " + nameValue + "! Your message has been received (demo only — not actually sent anywhere yet).";
+    contactForm.reset();
+  });
+}
+
+// --- Client Dashboard (only runs if #projectList exists) ---
+
+const projectList = document.querySelector("#projectList");
+
+if (projectList) {
+
+  // ============================================================
+  // MOCK DATA — stands in for what would really come from Supabase.
+  //
+  // In a real version, once a client logs in, you'd fetch ONLY
+  // their own projects from the database, e.g.:
+  //
+  //   const { data: projects } = await supabase
+  //     .from("projects")
+  //     .select("*")
+  //     .eq("client_id", currentUser.id);
+  //
+  // Supabase's security rules ("Row Level Security") ensure a client
+  // can only ever see their own rows — never another client's data,
+  // even if they tried to guess a URL or ID. That protection has to
+  // live in the database, not in this JS file.
+  // ============================================================
+
+  const mockProjects = [
+    {
+      title: "Brand Identity — Chikwawa Farmers Co-op",
+      date: "Started June 2026",
+      status: "in-progress",
+      statusLabel: "In Progress",
+      files: []
+    },
+    {
+      title: "Church Website Redesign",
+      date: "Started May 2026",
+      status: "review",
+      statusLabel: "Awaiting Your Review",
+      files: [
+        { name: "Homepage Draft v2.pdf", url: "#" },
+        { name: "Invoice - May 2026.pdf", url: "#" }
+      ]
+    },
+    {
+      title: "Social Media Pack — Launch Campaign",
+      date: "Completed April 2026",
+      status: "completed",
+      statusLabel: "Completed",
+      files: [
+        { name: "Final Graphics.zip", url: "#" },
+        { name: "Invoice - April 2026.pdf", url: "#" }
+      ]
+    }
+  ];
+
+  function buildProjectCard(project) {
+    const card = document.createElement("div");
+    card.className = "project-card";
+
+    const top = document.createElement("div");
+    top.className = "project-card-top";
+
+    const titleBlock = document.createElement("div");
+    const titleEl = document.createElement("h3");
+    titleEl.textContent = project.title;
+    const dateEl = document.createElement("p");
+    dateEl.className = "project-date";
+    dateEl.textContent = project.date;
+    titleBlock.appendChild(titleEl);
+    titleBlock.appendChild(dateEl);
+
+    const badge = document.createElement("span");
+    badge.className = "status-badge status-" + project.status;
+    badge.textContent = project.statusLabel;
+
+    top.appendChild(titleBlock);
+    top.appendChild(badge);
+    card.appendChild(top);
+
+    if (project.files.length > 0) {
+      const filesWrapper = document.createElement("div");
+      filesWrapper.className = "project-files";
+
+      project.files.forEach(function (file) {
+        const row = document.createElement("div");
+        row.className = "file-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+
+        const link = document.createElement("a");
+        link.href = file.url;
+        link.textContent = "Download";
+
+        row.appendChild(nameSpan);
+        row.appendChild(link);
+        filesWrapper.appendChild(row);
+      });
+
+      card.appendChild(filesWrapper);
+    }
+
+    return card;
+  }
+
+  mockProjects.forEach(function (project) {
+    projectList.appendChild(buildProjectCard(project));
+  });
+}
+
+// --- Logout button (demo) ---
+
+const logoutBtn = document.querySelector("#logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    // ============================================================
+    // REAL LOGOUT GOES HERE:
+    //   await supabase.auth.signOut();
+    //   window.location.href = "index.html";
+    // ============================================================
+
+    alert("Demo only: in a real version this would log you out and return you to the homepage.");
   });
 }

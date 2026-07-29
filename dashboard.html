@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Ultramedia Graphix</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">ULTRAMEDIA GRAPHIX</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="#" id="logoutBtn">Log Out</a>
+    </nav>
+  </header>
+
+  <section class="page-banner">
+    <div class="hero-bgword">PORTAL</div>
+    <div class="hero-content">
+      <p class="eyebrow">Client Area</p>
+      <h1 id="welcomeMsg">Welcome Back</h1>
+      <p>Track your project status and download your files below.</p>
+    </div>
+  </section>
+
+  <!--
+    NOTE FOR KELVIN: everything below is mock/demo data written
+    directly in the HTML. In a real version, this whole section
+    would be built dynamically by JavaScript after fetching this
+    specific logged-in client's projects from Supabase — see the
+    comment block in script.js (buildProjectCard function) for
+    exactly how that would work once you're ready to connect it.
+  -->
+
+  <section class="content-section">
+    <h2>Your Projects</h2>
+    <div id="projectList" class="project-grid">
+      <!-- Project cards are inserted here by script.js -->
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Ultramedia Graphix. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
