@@ -1,9 +1,40 @@
+// ===================================
+// ULTRAMEDIA GRAPHIX — SHARED SCRIPT
+// This one file is linked on every page. Each page only has the
+// HTML elements relevant to it, so querySelector calls for elements
+// that don't exist on the current page will just return null —
+// that's why we check "if (element)" before using page-specific code.
+// ===================================
+
 console.log("Ultramedia Graphix script connected.");
 
-const SUPABASE_URL = "https://scsesxsnhzbkcrifosea.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjc2VzeHNuaHpia2NyaWZvc2VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjAxMjcsImV4cCI6MjEwMDg5NjEyN30.XswQAJQRn2zWX8jQpq74CIwbk0eKkmJ_fKR3HGbdFJA";
+// --- Supabase connection ---
+// Replace these two values with YOUR actual Project URL and anon key
+// from Supabase → Project Settings → API. These are safe to expose
+// publicly — real protection comes from Supabase's Row Level Security
+// rules on the database side, not from hiding this key.
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://YOUR-PROJECT-ID.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY-HERE";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// --- Reusable loading-state helper for buttons ---
+// Call setLoading(button, true, "Logging in...") right before an
+// await call, and setLoading(button, false, "Log In") right after —
+// this disables the button and shows a spinner so users get clear
+// feedback during real network waits (login, register, etc).
+
+function setLoading(button, isLoading, labelWhenNotLoading) {
+  if (isLoading) {
+    button.dataset.originalText = button.textContent;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner"></span> Please wait...';
+  } else {
+    button.disabled = false;
+    button.textContent = labelWhenNotLoading || button.dataset.originalText;
+  }
+}
 
 // --- Login form validation (only runs if #loginForm exists on this page) ---
 
@@ -40,10 +71,15 @@ if (loginForm) {
       return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const submitButton = loginForm.querySelector("button[type='submit']");
+    setLoading(submitButton, true);
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: emailValue,
       password: passwordValue
     });
+
+    setLoading(submitButton, false, "Log In");
 
     if (error) {
       passwordError.textContent = error.message;
@@ -115,16 +151,21 @@ if (registerForm) {
       return;
     }
 
+    const submitButton = registerForm.querySelector("button[type='submit']");
+    setLoading(submitButton, true);
+
     // Real registration via Supabase.
     // Supabase automatically rejects this if the email is already
     // registered — we just need to catch and display that error.
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email: emailValue,
       password: passwordValue,
       options: {
         data: { full_name: nameValue } // stored alongside the user
       }
     });
+
+    setLoading(submitButton, false, "Create Account");
 
     if (error) {
       emailError.textContent = error.message;
@@ -145,7 +186,7 @@ if (googleSignupBtn) {
   googleSignupBtn.addEventListener("click", async function () {
     // Requires enabling Google as a provider in Supabase → Authentication
     // → Providers, and setting up a Google Cloud OAuth Client ID there.
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google"
     });
 
@@ -180,7 +221,7 @@ if (resetForm) {
 
     resetEmailError.textContent = "";
 
-    const { error } = await supabase.auth.resetPasswordForEmail(emailValue, {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailValue, {
       redirectTo: window.location.origin + "/login.html"
     });
 
@@ -262,7 +303,7 @@ if (projectList) {
 
   // --- Protect this page: only logged-in users should see it ---
   (async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (!session) {
       window.location.href = "login.html";
@@ -385,7 +426,7 @@ const logoutBtn = document.querySelector("#logoutBtn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async function (event) {
     event.preventDefault();
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     window.location.href = "index.html";
   });
 }
