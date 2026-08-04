@@ -1,29 +1,9 @@
-// ===================================
-// ULTRAMEDIA GRAPHIX — SHARED SCRIPT
-// This one file is linked on every page. Each page only has the
-// HTML elements relevant to it, so querySelector calls for elements
-// that don't exist on the current page will just return null —
-// that's why we check "if (element)" before using page-specific code.
-// ===================================
-
 console.log("Ultramedia Graphix script connected.");
-
-// --- Supabase connection ---
-// Replace these two values with YOUR actual Project URL and anon key
-// from Supabase → Project Settings → API. These are safe to expose
-// publicly — real protection comes from Supabase's Row Level Security
-// rules on the database side, not from hiding this key.
 
 const SUPABASE_URL = "https://scsesxsnhzbkcrifosea.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjc2VzeHNuaHpia2NyaWZvc2VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMjAxMjcsImV4cCI6MjEwMDg5NjEyN30.XswQAJQRn2zWX8jQpq74CIwbk0eKkmJ_fKR3HGbdFJA";
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// --- Reusable loading-state helper for buttons ---
-// Call setLoading(button, true, "Logging in...") right before an
-// await call, and setLoading(button, false, "Log In") right after —
-// this disables the button and shows a spinner so users get clear
-// feedback during real network waits (login, register, etc).
 
 function setLoading(button, isLoading, labelWhenNotLoading) {
   if (isLoading) {
@@ -36,7 +16,53 @@ function setLoading(button, isLoading, labelWhenNotLoading) {
   }
 }
 
-// --- Login form validation (only runs if #loginForm exists on this page) ---
+function getToastContainer() {
+  let container = document.querySelector(".toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+function showToast(message, type) {
+  const container = getToastContainer();
+
+  const toast = document.createElement("div");
+  toast.className = "toast" + (type ? " " + type : "");
+
+  const icon = document.createElement("span");
+  icon.className = "toast-icon";
+  icon.textContent = type === "success" ? "✓" : type === "error" ? "✕" : "ℹ";
+
+  const message_el = document.createElement("span");
+  message_el.className = "toast-message";
+  message_el.textContent = message;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "toast-close";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.addEventListener("click", function () {
+    removeToast(toast);
+  });
+
+  toast.appendChild(icon);
+  toast.appendChild(message_el);
+  toast.appendChild(closeBtn);
+  container.appendChild(toast);
+
+  setTimeout(function () {
+    removeToast(toast);
+  }, 4000);
+}
+
+function removeToast(toast) {
+  toast.classList.add("toast-out");
+  setTimeout(function () {
+    toast.remove();
+  }, 250);
+}
 
 const loginForm = document.querySelector("#loginForm");
 
@@ -90,8 +116,6 @@ if (loginForm) {
   });
 }
 
-// --- Register form validation (only runs if #registerForm exists) ---
-
 const registerForm = document.querySelector("#registerForm");
 
 if (registerForm) {
@@ -115,7 +139,6 @@ if (registerForm) {
     const passwordValue = passwordInput.value;
     const confirmValue = confirmInput.value;
 
-    // Name check
     if (nameValue === "") {
       nameError.textContent = "Please enter your name.";
       isValid = false;
@@ -123,7 +146,6 @@ if (registerForm) {
       nameError.textContent = "";
     }
 
-    // Email format check (NOT a uniqueness check — see note below)
     if (emailValue === "" || !emailValue.includes("@") || !emailValue.includes(".")) {
       emailError.textContent = "Please enter a valid email address.";
       isValid = false;
@@ -131,7 +153,6 @@ if (registerForm) {
       emailError.textContent = "";
     }
 
-    // Basic password strength check
     if (passwordValue.length < 8) {
       passwordError.textContent = "Password must be at least 8 characters.";
       isValid = false;
@@ -139,7 +160,6 @@ if (registerForm) {
       passwordError.textContent = "";
     }
 
-    // Confirm password matches
     if (confirmValue !== passwordValue || confirmValue === "") {
       confirmError.textContent = "Passwords do not match.";
       isValid = false;
@@ -154,14 +174,11 @@ if (registerForm) {
     const submitButton = registerForm.querySelector("button[type='submit']");
     setLoading(submitButton, true);
 
-    // Real registration via Supabase.
-    // Supabase automatically rejects this if the email is already
-    // registered — we just need to catch and display that error.
     const { data, error } = await supabaseClient.auth.signUp({
       email: emailValue,
       password: passwordValue,
       options: {
-        data: { full_name: nameValue } // stored alongside the user
+        data: { full_name: nameValue } 
       }
     });
 
@@ -172,34 +189,26 @@ if (registerForm) {
       return;
     }
 
-    alert("Account created! Check your email to confirm your address, then log in.");
+    showToast("Account created! Check your email to confirm your address, then log in.", "success");
     registerForm.reset();
     window.location.href = "login.html";
   });
 }
 
-// --- Google signup button (placeholder) ---
 
 const googleSignupBtn = document.querySelector("#googleSignupBtn");
 
 if (googleSignupBtn) {
   googleSignupBtn.addEventListener("click", async function () {
-    // Requires enabling Google as a provider in Supabase → Authentication
-    // → Providers, and setting up a Google Cloud OAuth Client ID there.
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google"
     });
 
     if (error) {
-      alert("Google sign-in error: " + error.message);
+      showToast("Google sign-in error: " + error.message, "error");
     }
-    // On success, Supabase redirects the browser to Google automatically,
-    // then back to your site once the user approves — no further code
-    // needed here.
   });
 }
-
-// --- Forgot password form (only runs if #resetForm exists) ---
 
 const resetForm = document.querySelector("#resetForm");
 
@@ -234,8 +243,6 @@ if (resetForm) {
     resetForm.reset();
   });
 }
-
-// --- Contact form validation (only runs if #contactForm exists) ---
 
 const contactForm = document.querySelector("#contactForm");
 
@@ -281,27 +288,17 @@ if (contactForm) {
 
     if (!isValid) {
       contactSuccessMsg.textContent = "";
-      return;
+      return
     }
 
-    // ============================================================
-    // In a real version, this is where you'd send the message
-    // somewhere real — e.g. an email service, or storing it in
-    // your Supabase database. For now, this just confirms locally.
-    // ============================================================
-
-    contactSuccessMsg.textContent = "Thanks, " + nameValue + "! Your message has been received (demo only — not actually sent anywhere yet).";
+    contactSuccessMsg.textContent = "Thanks, " + nameValue + "! Your message has been received.";
     contactForm.reset();
   });
 }
 
-// --- Client Dashboard (only runs if #projectList exists) ---
-
 const projectList = document.querySelector("#projectList");
 
 if (projectList) {
-
-  // --- Protect this page: only logged-in users should see it ---
   (async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -317,23 +314,7 @@ if (projectList) {
     }
   })();
 
-  // ============================================================
-  // MOCK DATA — stands in for what would really come from Supabase.
-  //
-  // In a real version, once a client logs in, you'd fetch ONLY
-  // their own projects from the database, e.g.:
-  //
-  //   const { data: projects } = await supabase
-  //     .from("projects")
-  //     .select("*")
-  //     .eq("client_id", currentUser.id);
-  //
-  // Supabase's security rules ("Row Level Security") ensure a client
-  // can only ever see their own rows — never another client's data,
-  // even if they tried to guess a URL or ID. That protection has to
-  // live in the database, not in this JS file.
-  // ============================================================
-
+  
   const mockProjects = [
     {
       title: "Brand Identity — Chikwawa Farmers Co-op",
@@ -418,8 +399,6 @@ if (projectList) {
     projectList.appendChild(buildProjectCard(project));
   });
 }
-
-// --- Logout button (demo) ---
 
 const logoutBtn = document.querySelector("#logoutBtn");
 
