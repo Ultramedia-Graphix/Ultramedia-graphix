@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Ultramedia Graphix</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">ULTRAMEDIA GRAPHIX <span style="color:#FF9900; font-size:13px;">ADMIN</span></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="admin.html" class="active">Admin</a>
+      <a href="#" id="logoutBtn">Log Out</a>
+    </nav>
+  </header>
+
+  <section class="page-banner">
+    <div class="hero-bgword">ADMIN</div>
+    <div class="hero-content">
+      <p class="eyebrow">Admin Only</p>
+      <h1>Manage Client Projects</h1>
+      <p>Add new projects, attach files and update project status.</p>
+    </div>
+  </section>
+
+  <section class="content-section" id="notAdminMsg" style="display:none;">
+    <p>You don't have access to this page.</p>
+  </section>
+
+  <div id="adminContent" style="display:none;">
+
+    <section class="content-section">
+      <h2>Add a New Project</h2>
+      <div class="login-box" style="max-width: 600px; margin: 20px 0 0 0; text-align:left;">
+        <form id="addProjectForm">
+          <div class="form-group">
+            <label for="clientId">Client's User ID</label>
+            <input type="text" id="clientId" placeholder="e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6">
+            <span class="error-text" id="clientIdError"></span>
+            <span class="helper-text" style="margin:4px 0 0 0;">Find this in Supabase → Authentication → Users → copy the "UID" column for the client.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="projectTitle">Project Title</label>
+            <input type="text" id="projectTitle" placeholder="e.g. Brand Identity — Chikwawa Farmers Co-op">
+            <span class="error-text" id="projectTitleError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="projectStatus">Status</label>
+            <select id="projectStatus" style="padding:12px; border:1px solid #ccc; border-radius:6px; font-family:inherit;">
+              <option value="in-progress">In Progress</option>
+              <option value="review">Awaiting Client Review</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn">Add Project</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="content-section" style="padding-top:0;">
+      <h2>Attach a File to a Project</h2>
+      <div class="login-box" style="max-width: 600px; margin: 20px 0 0 0; text-align:left;">
+        <form id="addFileForm">
+          <div class="form-group">
+            <label for="fileProjectSelect">Project</label>
+            <select id="fileProjectSelect" style="padding:12px; border:1px solid #ccc; border-radius:6px; font-family:inherit;">
+              <option value="">Select a project...</option>
+            </select>
+            <span class="error-text" id="fileProjectError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="fileName">File Name</label>
+            <input type="text" id="fileName" placeholder="e.g. Homepage Draft v2.pdf">
+            <span class="error-text" id="fileNameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="fileUrl">File Link</label>
+            <input type="text" id="fileUrl" placeholder="e.g. https://drive.google.com/...">
+            <span class="error-text" id="fileUrlError"></span>
+            <span class="helper-text" style="margin:4px 0 0 0;">Upload the actual file to Google Drive/Dropbox first, then paste its shareable link here.</span>
+          </div>
+
+          <button type="submit" class="btn">Attach File</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="content-section" style="padding-top:0;">
+      <h2>All Projects</h2>
+      <div id="adminProjectList" class="project-grid" style="margin-top:20px;"></div>
+    </section>
+
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-socials">
+      <a href="https://wa.me/265988489471" target="_blank" rel="noopener" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.477 2 2 6.477 2 12c0 1.85.505 3.58 1.383 5.06L2 22l5.09-1.336A9.94 9.94 0 0012.004 22c5.522 0 10-4.477 10-10s-4.478-10-10-10zm0 18.2a8.17 8.17 0 01-4.166-1.14l-.299-.177-3.02.792.806-2.94-.194-.302A8.19 8.19 0 013.8 12c0-4.53 3.674-8.2 8.204-8.2 4.53 0 8.2 3.67 8.2 8.2 0 4.53-3.67 8.2-8.2 8.2z"/></svg>
+      </a>
+    </div>
+    <p>&copy; 2026 Ultramedia Graphix. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>

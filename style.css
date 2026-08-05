@@ -1,6 +1,6 @@
 @font-face {
   font-family: "MadeTommy";
-  src: url("fonts/MADE\ TOMMY\ Black\ Outline_PERSONAL\ USE.otf") format("opentype");
+  src: url("fonts/MadeTommyBlack.otf") format("opentype");
   font-weight: 900;
 }
 
@@ -203,8 +203,6 @@ a {
   to { transform: rotate(360deg); }
 }
 
-/* --- Cards (services, portfolio items, etc.) --- */
-
 .card-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -273,6 +271,344 @@ a {
   .page-banner .hero-content h1 {
     font-size: 28px;
   }
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 20px 40px 60px 40px;
+}
+
+@media (max-width: 768px) {
+  .testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.testimonial-card {
+  background-color: var(--gray-light);
+  border-radius: 10px;
+  padding: 28px;
+}
+
+.testimonial-quote {
+  font-size: 15px;
+  color: var(--gray-text);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.testimonial-quote::before {
+  content: "\201C";
+  font-size: 32px;
+  color: var(--orange);
+  line-height: 0;
+  vertical-align: -8px;
+  margin-right: 4px;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--maroon);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.testimonial-author-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.testimonial-author-role {
+  font-size: 13px;
+  color: #888;
+}
+
+.section-heading {
+  text-align: center;
+  padding: 0 40px;
+}
+
+.section-heading h2 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.section-heading p {
+  color: #666;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.work-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px 40px 60px 40px;
+}
+
+@media (max-width: 768px) {
+  .work-preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.work-preview-item {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background-color: var(--gray-light);
+}
+
+.work-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.work-preview-item:hover img {
+  transform: scale(1.06);
+}
+
+.work-preview-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  color: var(--white);
+  padding: 20px 16px 12px 16px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.faq-list {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 40px 60px 40px;
+}
+
+.faq-item {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 20px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gray-text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: inherit;
+}
+
+.faq-question .faq-icon {
+  color: var(--orange);
+  font-size: 20px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.faq-question.open .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+  color: #666;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.faq-answer p {
+  padding-bottom: 20px;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 20px 40px 60px 40px;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricing-card {
+  background-color: var(--white);
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  position: relative;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pricing-card:hover {
+  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+}
+
+.pricing-card.featured {
+  border: 2px solid var(--orange);
+}
+
+.pricing-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--orange);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.pricing-card h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.pricing-price {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--maroon);
+  margin-bottom: 4px;
+}
+
+.pricing-price span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #888;
+}
+
+.pricing-subtitle {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 24px;
+}
+
+.pricing-features {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 28px;
+}
+
+.pricing-features li {
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--gray-text);
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pricing-features li::before {
+  content: "✓";
+  color: var(--orange);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.case-study {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  padding: 40px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.case-study:last-child {
+  border-bottom: none;
+}
+
+.case-study.reverse .case-study-image {
+  order: 2;
+}
+
+@media (max-width: 768px) {
+  .case-study,
+  .case-study.reverse .case-study-image {
+    grid-template-columns: 1fr;
+    order: 0;
+  }
+}
+
+.case-study-image {
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background-color: var(--gray-light);
+}
+
+.case-study-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.case-study-content .case-tag {
+  display: inline-block;
+  background-color: var(--gray-light);
+  color: var(--maroon);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.case-study-content h3 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.case-study-content p {
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.case-study-quote {
+  border-left: 3px solid var(--orange);
+  padding-left: 16px;
+  font-style: italic;
+  color: var(--gray-text);
+  font-size: 14px;
 }
 
 .portfolio-grid {
@@ -680,8 +1016,6 @@ a {
   background-color: var(--maroon);
   color: var(--white);
 }
-
-/* --- Footer --- */
 
 .site-footer {
   background-color: var(--maroon);

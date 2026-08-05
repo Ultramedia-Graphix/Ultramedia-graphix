@@ -139,6 +139,7 @@ if (registerForm) {
     const passwordValue = passwordInput.value;
     const confirmValue = confirmInput.value;
 
+    // Name check
     if (nameValue === "") {
       nameError.textContent = "Please enter your name.";
       isValid = false;
@@ -178,7 +179,7 @@ if (registerForm) {
       email: emailValue,
       password: passwordValue,
       options: {
-        data: { full_name: nameValue } 
+        data: { full_name: nameValue } // stored alongside the user
       }
     });
 
@@ -194,7 +195,6 @@ if (registerForm) {
     window.location.href = "login.html";
   });
 }
-
 
 const googleSignupBtn = document.querySelector("#googleSignupBtn");
 
@@ -288,7 +288,7 @@ if (contactForm) {
 
     if (!isValid) {
       contactSuccessMsg.textContent = "";
-      return
+      return;
     }
 
     contactSuccessMsg.textContent = "Thanks, " + nameValue + "! Your message has been received.";
@@ -299,7 +299,8 @@ if (contactForm) {
 const projectList = document.querySelector("#projectList");
 
 if (projectList) {
-  (async function checkAuth() {
+
+  (async function initDashboard() {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (!session) {
@@ -312,38 +313,52 @@ if (projectList) {
       const name = session.user.user_metadata.full_name || session.user.email;
       welcomeMsg.textContent = "Welcome Back, " + name;
     }
-  })();
 
-  
-  const mockProjects = [
-    {
-      title: "Brand Identity — Chikwawa Farmers Co-op",
-      date: "Started June 2026",
-      status: "in-progress",
-      statusLabel: "In Progress",
-      files: []
-    },
-    {
-      title: "Church Website Redesign",
-      date: "Started May 2026",
-      status: "review",
-      statusLabel: "Awaiting Your Review",
-      files: [
-        { name: "Homepage Draft v2.pdf", url: "#" },
-        { name: "Invoice - May 2026.pdf", url: "#" }
-      ]
-    },
-    {
-      title: "Social Media Pack — Launch Campaign",
-      date: "Completed April 2026",
-      status: "completed",
-      statusLabel: "Completed",
-      files: [
-        { name: "Final Graphics.zip", url: "#" },
-        { name: "Invoice - April 2026.pdf", url: "#" }
-      ]
+    const { data: projects, error: projectsError } = await supabaseClient
+      .from("projects")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (projectsError) {
+      projectList.innerHTML = "";
+      const errorMsg = document.createElement("p");
+      errorMsg.textContent = "Couldn't load projects: " + projectsError.message;
+      projectList.appendChild(errorMsg);
+      return;
     }
-  ];
+
+    if (!projects || projects.length === 0) {
+      const emptyMsg = document.createElement("p");
+      emptyMsg.textContent = "No projects yet — check back once your project has started.";
+      projectList.appendChild(emptyMsg);
+      return;
+    }
+
+    const projectIds = projects.map(function (p) { return p.id; });
+
+    const { data: files } = await supabaseClient
+      .from("project_files")
+      .select("*")
+      .in("project_id", projectIds);
+
+    projects.forEach(function (project) {
+      const projectFiles = (files || [])
+        .filter(function (f) { return f.project_id === project.id; })
+        .map(function (f) { return { name: f.file_name, url: f.file_url }; });
+
+      const dateLabel = new Date(project.created_at).toLocaleDateString("en-GB", {
+        year: "numeric", month: "long"
+      });
+
+      projectList.appendChild(buildProjectCard({
+        title: project.title,
+        date: "Started " + dateLabel,
+        status: project.status,
+        statusLabel: project.status_label,
+        files: projectFiles
+      }));
+    });
+  })();
 
   function buildProjectCard(project) {
     const card = document.createElement("div");
@@ -394,10 +409,6 @@ if (projectList) {
 
     return card;
   }
-
-  mockProjects.forEach(function (project) {
-    projectList.appendChild(buildProjectCard(project));
-  });
 }
 
 const logoutBtn = document.querySelector("#logoutBtn");
@@ -407,5 +418,270 @@ if (logoutBtn) {
     event.preventDefault();
     await supabaseClient.auth.signOut();
     window.location.href = "index.html";
+  });
+}
+
+const faqList = document.querySelector("#faqList");
+
+if (faqList) {
+  const questions = faqList.querySelectorAll(".faq-question");
+
+  questions.forEach(function (question) {
+    question.addEventListener("click", function () {
+      const answer = question.nextElementSibling;
+      const isOpen = question.classList.contains("open");
+
+      if (isOpen) {
+        question.classList.remove("open");
+        answer.style.maxHeight = null;
+      } else {
+        question.classList.add("open");
+        answer.style.maxHeight = answer.scrollHeight + "px";
+      }
+    });
+  });
+}
+
+const adminContent = document.querySelector("#adminContent");
+
+if (adminContent) {
+  const notAdminMsg = document.querySelector("#notAdminMsg");
+  const adminProjectList = document.querySelector("#adminProjectList");
+  const addProjectForm = document.querySelector("#addProjectForm");
+
+  (async function initAdmin() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const { data: adminRow } = await supabaseClient
+      .from("admins")
+      .select("user_id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (!adminRow) {
+      notAdminMsg.style.display = "block";
+      return;
+    }
+
+    adminContent.style.display = "block";
+    loadAllProjects();
+  })();
+
+  async function loadAllProjects() {
+    adminProjectList.innerHTML = "";
+
+    const { data: projects, error } = await supabaseClient
+      .from("projects")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      adminProjectList.textContent = "Error loading projects: " + error.message;
+      return;
+    }
+
+    if (!projects || projects.length === 0) {
+      adminProjectList.textContent = "No projects yet — add one above.";
+      return;
+    }
+
+    const fileProjectSelect = document.querySelector("#fileProjectSelect");
+    fileProjectSelect.innerHTML = '<option value="">Select a project...</option>';
+    projects.forEach(function (project) {
+      const option = document.createElement("option");
+      option.value = project.id;
+      option.textContent = project.title;
+      fileProjectSelect.appendChild(option);
+    });
+
+    const projectIds = projects.map(function (p) { return p.id; });
+    const { data: files } = await supabaseClient
+      .from("project_files")
+      .select("*")
+      .in("project_id", projectIds);
+
+    projects.forEach(function (project) {
+      const card = document.createElement("div");
+      card.className = "project-card";
+
+      const top = document.createElement("div");
+      top.className = "project-card-top";
+
+      const titleBlock = document.createElement("div");
+      const titleEl = document.createElement("h3");
+      titleEl.textContent = project.title;
+      titleBlock.appendChild(titleEl);
+
+      const badge = document.createElement("span");
+      badge.className = "status-badge status-" + project.status;
+      badge.textContent = project.status_label;
+
+      top.appendChild(titleBlock);
+      top.appendChild(badge);
+      card.appendChild(top);
+
+      const projectFiles = (files || []).filter(function (f) {
+        return f.project_id === project.id;
+      });
+
+      if (projectFiles.length > 0) {
+        const filesWrapper = document.createElement("div");
+        filesWrapper.className = "project-files";
+
+        projectFiles.forEach(function (file) {
+          const row = document.createElement("div");
+          row.className = "file-row";
+
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = file.file_name;
+
+          const link = document.createElement("a");
+          link.href = file.file_url;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = "View";
+
+          row.appendChild(nameSpan);
+          row.appendChild(link);
+          filesWrapper.appendChild(row);
+        });
+
+        card.appendChild(filesWrapper);
+      }
+
+      adminProjectList.appendChild(card);
+    });
+  }
+
+  const addFileForm = document.querySelector("#addFileForm");
+
+  addFileForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const fileProjectSelect = document.querySelector("#fileProjectSelect");
+    const fileNameInput = document.querySelector("#fileName");
+    const fileUrlInput = document.querySelector("#fileUrl");
+    const fileProjectError = document.querySelector("#fileProjectError");
+    const fileNameError = document.querySelector("#fileNameError");
+    const fileUrlError = document.querySelector("#fileUrlError");
+
+    const projectIdValue = fileProjectSelect.value;
+    const fileNameValue = fileNameInput.value.trim();
+    const fileUrlValue = fileUrlInput.value.trim();
+
+    let isValid = true;
+
+    if (projectIdValue === "") {
+      fileProjectError.textContent = "Select a project.";
+      isValid = false;
+    } else {
+      fileProjectError.textContent = "";
+    }
+
+    if (fileNameValue === "") {
+      fileNameError.textContent = "Enter a file name.";
+      isValid = false;
+    } else {
+      fileNameError.textContent = "";
+    }
+
+    if (fileUrlValue === "" || !fileUrlValue.startsWith("http")) {
+      fileUrlError.textContent = "Enter a valid link (starting with http:// or https://).";
+      isValid = false;
+    } else {
+      fileUrlError.textContent = "";
+    }
+
+    if (!isValid) return;
+
+    const submitButton = addFileForm.querySelector("button[type='submit']");
+    setLoading(submitButton, true);
+
+    const { error } = await supabaseClient
+      .from("project_files")
+      .insert({
+        project_id: projectIdValue,
+        file_name: fileNameValue,
+        file_url: fileUrlValue
+      });
+
+    setLoading(submitButton, false, "Attach File");
+
+    if (error) {
+      showToast("Couldn't attach file: " + error.message, "error");
+      return;
+    }
+
+    showToast("File attached successfully!", "success");
+    addFileForm.reset();
+    loadAllProjects();
+  });
+
+  addProjectForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const clientIdInput = document.querySelector("#clientId");
+    const projectTitleInput = document.querySelector("#projectTitle");
+    const projectStatusSelect = document.querySelector("#projectStatus");
+    const clientIdError = document.querySelector("#clientIdError");
+    const projectTitleError = document.querySelector("#projectTitleError");
+
+    const clientIdValue = clientIdInput.value.trim();
+    const titleValue = projectTitleInput.value.trim();
+    const statusValue = projectStatusSelect.value;
+
+    let isValid = true;
+
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidPattern.test(clientIdValue)) {
+      clientIdError.textContent = "Enter a valid User ID (copy it from Supabase → Authentication → Users).";
+      isValid = false;
+    } else {
+      clientIdError.textContent = "";
+    }
+
+    if (titleValue === "") {
+      projectTitleError.textContent = "Enter a project title.";
+      isValid = false;
+    } else {
+      projectTitleError.textContent = "";
+    }
+
+    if (!isValid) return;
+
+    const statusLabels = {
+      "in-progress": "In Progress",
+      "review": "Awaiting Client Review",
+      "completed": "Completed"
+    };
+
+    const submitButton = addProjectForm.querySelector("button[type='submit']");
+    setLoading(submitButton, true);
+
+    const { error } = await supabaseClient
+      .from("projects")
+      .insert({
+        client_id: clientIdValue,
+        title: titleValue,
+        status: statusValue,
+        status_label: statusLabels[statusValue]
+      });
+
+    setLoading(submitButton, false, "Add Project");
+
+    if (error) {
+      showToast("Couldn't add project: " + error.message, "error");
+      return;
+    }
+
+    showToast("Project added successfully!", "success");
+    addProjectForm.reset();
+    loadAllProjects();
   });
 }
